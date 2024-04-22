@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: feature-flag-service
+  namespace: easytrade-ocp
+  labels:
+    app: feature-flag-service
+    dt.owner: easytrade-devops
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: feature-flag-service
+  template:
+    metadata:
+      labels:
+        app: feature-flag-service
+        persistence: ephemeral
+        dt.owner: easytrade-devops
+    spec:
+      containers:
+        - name: feature-flag-service
+          image: gcr.io/dynatrace-demoability/easytrade/feature-flag-service:a9edfaf
+          env:
+            - name: DT_RELEASE_PRODUCT
+              valueFrom:
+                configMapKeyRef:
+                  name: versioning
+                  key: PRODUCT
+            - name: DT_RELEASE_STAGE
+              valueFrom:
+                configMapKeyRef:
+                  name: versioning
+                  key: STAGE
+            - name: DT_RELEASE_BUILD_VERSION
+              valueFrom:
+                configMapKeyRef:
+                  name: versioning
+                  key: BUILD_VERSION
+            - name: DT_RELEASE_VERSION
+              valueFrom:
+                configMapKeyRef:
+                  name: versioning
+                  key: RELEASE_VERSION
+            - name: DT_CUSTOM_PROP
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['dt.owner']
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: feature-flag-service
+  namespace: easytrade-ocp
+spec:
+  type: ClusterIP
+  selector:
+    app: feature-flag-service
+  ports:
+    - name: feature-flag-service
+      port: 8080
+      targetPort: 8080

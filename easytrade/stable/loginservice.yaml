@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loginservice
+  namespace: easytrade-ocp
+  labels:
+    app: loginservice
+    dt.owner: easytrade-devops
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: loginservice
+  template:
+    metadata:
+      labels:
+        app: loginservice
+        persistence: ephemeral
+        dt.owner: easytrade-devops
+    spec:
+      containers:
+        - name: loginservice
+          image: gcr.io/dynatrace-demoability/easytrade/loginservice:a9edfaf
+          ports:
+            - containerPort: 80
+          env:
+            - name: PROXY_PREFIX
+              value: "loginservice"
+            - name: MSSQL_CONNECTIONSTRING
+              valueFrom:
+                configMapKeyRef:
+                  name: connection-strings
+                  key: DOTNET_CONNECTION_STRING
+            - name: DT_RELEASE_PRODUCT
+              valueFrom:
+                configMapKeyRef:
+                  name: versioning
+                  key: PRODUCT
+            - name: DT_RELEASE_STAGE
+              valueFrom:
+                configMapKeyRef:
+                  name: versioning
+                  key: STAGE
+            - name: DT_RELEASE_BUILD_VERSION
+              valueFrom:
+                configMapKeyRef:
+                  name: versioning
+                  key: BUILD_VERSION
+            - name: DT_RELEASE_VERSION
+              valueFrom:
+                configMapKeyRef:
+                  name: versioning
+                  key: RELEASE_VERSION
+            - name: DT_CUSTOM_PROP
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['dt.owner']
+          resources:
+            requests:
+              cpu: 100m
+              memory: 350Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: loginservice
+  namespace: easytrade-ocp
+spec:
+  type: ClusterIP
+  selector:
+    app: loginservice
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80

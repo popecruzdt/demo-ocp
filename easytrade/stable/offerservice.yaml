@@ -1,0 +1,90 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: offerservice-envs
+  namespace: easytrade-ocp
+data:
+  LOGIN_SERVICE_PORT: "80"
+  LOGIN_SERVICE_BASE_URL: loginservice
+  MANAGER_BASE_URL: manager
+  MANAGER_PORT: "80"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: offerservice
+  namespace: easytrade-ocp
+  labels:
+    app: offerservice
+    dt.owner: easytrade-devops
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: offerservice
+  template:
+    metadata:
+      labels:
+        app: offerservice
+        persistence: ephemeral
+        dt.owner: easytrade-devops
+    spec:
+      containers:
+        - name: offerservice
+          image: gcr.io/dynatrace-demoability/easytrade/offerservice:a9edfaf
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: offerservice-envs
+            - configMapRef:
+                name: feature-flag-service-setup
+          env:
+            - name: DT_RELEASE_PRODUCT
+              valueFrom:
+                configMapKeyRef:
+                  name: versioning
+                  key: PRODUCT
+            - name: DT_RELEASE_STAGE
+              valueFrom:
+                configMapKeyRef:
+                  name: versioning
+                  key: STAGE
+            - name: DT_RELEASE_BUILD_VERSION
+              valueFrom:
+                configMapKeyRef:
+                  name: versioning
+                  key: BUILD_VERSION
+            - name: DT_RELEASE_VERSION
+              valueFrom:
+                configMapKeyRef:
+                  name: versioning
+                  key: RELEASE_VERSION
+            - name: DT_CUSTOM_PROP
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['dt.owner']
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: offerservice
+  namespace: easytrade-ocp
+spec:
+  type: ClusterIP
+  selector:
+    app: offerservice
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080

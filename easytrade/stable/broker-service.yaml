@@ -1,0 +1,95 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: broker-service-envs
+  namespace: easytrade-ocp
+data:
+  ACCOUNTSERVICE_HOSTANDPORT: "accountservice:8080"
+  PRICINGSERVICE_HOSTANDPORT: "pricing-service:8080"
+  ENGINE_HOSTANDPORT: "engine:8080"
+  PROXY_PREFIX: "broker-service"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: broker-service
+  namespace: easytrade-ocp
+  labels:
+    app: broker-service
+    dt.owner: easytrade-devops
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: broker-service
+  template:
+    metadata:
+      labels:
+        app: broker-service
+        persistence: ephemeral
+        dt.owner: easytrade-devops
+    spec:
+      containers:
+        - name: broker-service
+          image: popecruzdt/easytrade-brokerservice:a9edfaf
+          ports:
+            - containerPort: 80
+          envFrom:
+            - configMapRef:
+                name: broker-service-envs
+            - configMapRef:
+                name: feature-flag-service-setup
+          env:
+            - name: MSSQL_CONNECTIONSTRING
+              valueFrom:
+                configMapKeyRef:
+                  name: connection-strings
+                  key: DOTNET_CONNECTION_STRING
+            - name: DT_RELEASE_PRODUCT
+              valueFrom:
+                configMapKeyRef:
+                  name: versioning
+                  key: PRODUCT
+            - name: DT_RELEASE_STAGE
+              valueFrom:
+                configMapKeyRef:
+                  name: versioning
+                  key: STAGE
+            - name: DT_RELEASE_BUILD_VERSION
+              valueFrom:
+                configMapKeyRef:
+                  name: versioning
+                  key: BUILD_VERSION
+            - name: DT_RELEASE_VERSION
+              valueFrom:
+                configMapKeyRef:
+                  name: versioning
+                  key: RELEASE_VERSION
+            - name: DT_CUSTOM_PROP
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['dt.owner']
+          resources:
+            requests:
+              cpu: 100m
+              memory: 300Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: broker-service
+  namespace: easytrade-ocp
+spec:
+  type: ClusterIP
+  selector:
+    app: broker-service
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80

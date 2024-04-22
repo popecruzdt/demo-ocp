@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: calculationservice
+  namespace: easytrade-ocp
+spec:
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: calculationservice
+  template:
+    metadata:
+      labels:
+        app: calculationservice
+        persistence: ephemeral
+    spec:
+      containers:
+        - name: calculationservice
+          image: gcr.io/dynatrace-demoability/easytrade/calculationservice:a9edfaf
+          resources:
+            requests:
+              cpu: 10m
+              memory: 10Mi

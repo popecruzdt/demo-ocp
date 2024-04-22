@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: engine
+  namespace: easytrade-ocp
+  labels:
+    app: engine
+    dt.owner: easytrade-devops
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: engine
+  template:
+    metadata:
+      labels:
+        app: engine
+        persistence: ephemeral
+        dt.owner: easytrade-devops
+    spec:
+      nodeSelector:
+        group: large
+      containers:
+        - name: engine
+          image: gcr.io/dynatrace-demoability/easytrade/engine:a9edfaf
+          ports:
+            - containerPort: 8080
+          env:
+            - name: BROKER_HOSTANDPORT
+              value: "broker-service:80"
+            - name: PROXY_PREFIX
+              value: "engine"
+            - name: DT_RELEASE_PRODUCT
+              valueFrom:
+                configMapKeyRef:
+                  name: versioning
+                  key: PRODUCT
+            - name: DT_RELEASE_STAGE
+              valueFrom:
+                configMapKeyRef:
+                  name: versioning
+                  key: STAGE
+            - name: DT_RELEASE_BUILD_VERSION
+              valueFrom:
+                configMapKeyRef:
+                  name: versioning
+                  key: BUILD_VERSION
+            - name: DT_RELEASE_VERSION
+              valueFrom:
+                configMapKeyRef:
+                  name: versioning
+                  key: RELEASE_VERSION
+            - name: DT_CUSTOM_PROP
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['dt.owner']
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: engine
+  namespace: easytrade-ocp
+spec:
+  type: ClusterIP
+  selector:
+    app: engine
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080

@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db
+  namespace: easytrade-ocp
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: db
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      nodeSelector:
+        group: large
+      containers:
+        - name: db
+          image: gcr.io/dynatrace-demoability/easytrade/db:a9edfaf
+          ports:
+            - containerPort: 1433
+          env:
+            - name: SA_PASSWORD
+              value: "yourStrong(!)Password"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: easytrade-ocp-db
+  namespace: easytrade-ocp
+spec:
+  type: ClusterIP
+  selector:
+    app: db
+  ports:
+    - name: mssql
+      port: 1433
+      targetPort: 1433

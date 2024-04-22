@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: contentcreator
+  namespace: easytrade-ocp
+spec:
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: contentcreator
+  template:
+    metadata:
+      labels:
+        app: contentcreator
+        persistence: ephemeral
+    spec:
+      nodeSelector:
+        group: large
+      containers:
+        - name: contentcreator
+          image: gcr.io/dynatrace-demoability/easytrade/contentcreator:a9edfaf
+          env:
+            - name: MSSQL_CONNECTIONSTRING
+              valueFrom:
+                configMapKeyRef:
+                  name: connection-strings
+                  key: JAVA_CONNECTION_STRING
+          resources:
+            requests:
+              cpu: 100m
+              memory: 200Mi

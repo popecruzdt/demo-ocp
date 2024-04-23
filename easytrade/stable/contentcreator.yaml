@@ -14,8 +14,6 @@ spec:
         app: contentcreator
         persistence: ephemeral
     spec:
-      nodeSelector:
-        group: large
       containers:
         - name: contentcreator
           image: gcr.io/dynatrace-demoability/easytrade/contentcreator:a9edfaf

@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: versioning
+  namespace: easytrade-ocp
+data:
+  BUILD_VERSION: a9edfaf
+  RELEASE_VERSION: 1.0.2024.04.22.1
+  STAGE: prod
+  PRODUCT: easytrade
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: images
+  namespace: easytrade-ocp
+data:
+  accountservice: "gcr.io/dynatrace-demoability/easytrade/accountservice:a9edfaf"
+  aggregatorservice: "gcr.io/dynatrace-demoability/easytrade/aggregatorservice:a9edfaf"
+  broker-service: "gcr.io/dynatrace-demoability/easytrade/broker-service:a9edfaf"
+  calculationservice: "gcr.io/dynatrace-demoability/easytrade/calculationservice:a9edfaf"
+  contentcreator: "gcr.io/dynatrace-demoability/easytrade/contentcreator:a9edfaf"
+  credit-card-order-service: "gcr.io/dynatrace-demoability/easytrade/credit-card-order-service:a9edfaf"
+  db: "gcr.io/dynatrace-demoability/easytrade/db:a9edfaf"
+  engine: "gcr.io/dynatrace-demoability/easytrade/engine:a9edfaf"
+  feature-flag-service: "gcr.io/dynatrace-demoability/easytrade/feature-flag-service:a9edfaf"
+  frontend: "gcr.io/dynatrace-demoability/easytrade/frontend:a9edfaf"
+  loginservice: "gcr.io/dynatrace-demoability/easytrade/loginservice:a9edfaf"
+  manager: "gcr.io/dynatrace-demoability/easytrade/manager:a9edfaf"
+  offerservice: "gcr.io/dynatrace-demoability/easytrade/offerservice:a9edfaf"
+  pricing-service: "gcr.io/dynatrace-demoability/easytrade/pricing-service:a9edfaf"
+  rabbitmq: "gcr.io/dynatrace-demoability/easytrade/rabbitmq:a9edfaf"
+  third-party-service: "gcr.io/dynatrace-demoability/easytrade/third-party-service:a9edfaf"

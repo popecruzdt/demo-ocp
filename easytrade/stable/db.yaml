@@ -19,8 +19,6 @@ spec:
       labels:
         app: db
     spec:
-      nodeSelector:
-        group: large
       containers:
         - name: db
           image: gcr.io/dynatrace-demoability/easytrade/db:a9edfaf

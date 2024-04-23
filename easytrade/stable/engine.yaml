@@ -24,8 +24,6 @@ spec:
         persistence: ephemeral
         dt.owner: easytrade-devops
     spec:
-      nodeSelector:
-        group: large
       containers:
         - name: engine
           image: gcr.io/dynatrace-demoability/easytrade/engine:a9edfaf

@@ -16,9 +16,12 @@ spec:
       app: db
   template:
     metadata:
+      annotations:
+        oneagent.dynatrace.com/inject: "false"
       labels:
         app: db
     spec:
+      serviceAccountName: easytrade-sa
       containers:
         - name: db
           image: gcr.io/dynatrace-demoability/easytrade/db:a9edfaf
@@ -31,6 +34,8 @@ spec:
             requests:
               cpu: 100m
               memory: 1Gi
+          securityContext:
+            allowPrivilegeEscalation: true
 ---
 apiVersion: v1
 kind: Service

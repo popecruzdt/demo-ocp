@@ -20,6 +20,7 @@ spec:
         app: rabbitmq
         persistence: ephemeral
     spec:
+      serviceAccountName: easytrade-sa
       containers:
         - name: rabbitmq
           image: gcr.io/dynatrace-demoability/easytrade/rabbitmq:a9edfaf
@@ -51,6 +52,8 @@ spec:
             requests:
               cpu: 100m
               memory: 150Mi
+          securityContext:
+            allowPrivilegeEscalation: true
 ---
 apiVersion: v1
 kind: Service

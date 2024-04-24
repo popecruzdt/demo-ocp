@@ -21,6 +21,7 @@ spec:
       labels:
         app: headlessloadgen
     spec:
+      serviceAccountName: easytrade-sa
       containers:
         - name: headlessloadgen
           image: gcr.io/dynatrace-demoability/headlessloadgen:b554e03
@@ -39,3 +40,5 @@ spec:
               value: "80"
             - name: NODE_LOG_LEVEL
               value: "info"
+          securityContext:
+            allowPrivilegeEscalation: true

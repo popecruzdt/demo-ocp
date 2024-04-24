@@ -14,6 +14,7 @@ spec:
         app: calculationservice
         persistence: ephemeral
     spec:
+      serviceAccountName: easytrade-sa
       containers:
         - name: calculationservice
           image: gcr.io/dynatrace-demoability/easytrade/calculationservice:a9edfaf

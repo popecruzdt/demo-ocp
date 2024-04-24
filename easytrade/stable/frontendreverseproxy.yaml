@@ -24,6 +24,7 @@ spec:
         persistence: ephemeral
         dt.owner: easytrade-devops
     spec:
+      serviceAccountName: easytrade-sa
       containers:
         - name: frontendreverseproxy
           image: gcr.io/dynatrace-demoability/easytrade/frontendreverseproxy:a9edfaf
@@ -58,6 +59,8 @@ spec:
             requests:
               cpu: 100m
               memory: 50Mi
+          securityContext:
+            allowPrivilegeEscalation: true
 ---
 apiVersion: v1
 kind: Service

@@ -35,6 +35,7 @@ spec:
         persistence: ephemeral
         dt.owner: easytrade-devops
     spec:
+      serviceAccountName: easytrade-sa
       containers:
         - name: broker-service
           image: popecruzdt/easytrade-brokerservice:a9edfaf
@@ -79,6 +80,8 @@ spec:
             requests:
               cpu: 100m
               memory: 300Mi
+          securityContext:
+            allowPrivilegeEscalation: true
 ---
 apiVersion: v1
 kind: Service

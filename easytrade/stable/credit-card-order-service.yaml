@@ -24,6 +24,7 @@ spec:
         persistence: ephemeral
         dt.owner: easytrade-devops
     spec:
+      serviceAccountName: easytrade-sa
       containers:
         - name: credit-card-order-service
           image: popecruzdt/easytrade-creditcardorderservice:a9edfaf
@@ -71,6 +72,8 @@ spec:
             requests:
               cpu: 100m
               memory: 100Mi
+          securityContext:
+            allowPrivilegeEscalation: true
 ---
 apiVersion: v1
 kind: Service

@@ -24,6 +24,7 @@ spec:
         persistence: ephemeral
         dt.owner: easytrade-devops
     spec:
+      serviceAccountName: easytrade-sa
       containers:
         - name: engine
           image: gcr.io/dynatrace-demoability/easytrade/engine:a9edfaf
@@ -62,6 +63,8 @@ spec:
             requests:
               cpu: 100m
               memory: 100Mi
+          securityContext:
+            allowPrivilegeEscalation: true
 ---
 apiVersion: v1
 kind: Service

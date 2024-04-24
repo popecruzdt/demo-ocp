@@ -24,6 +24,7 @@ spec:
         persistence: ephemeral
         dt.owner: easytrade-devops
     spec:
+      serviceAccountName: easytrade-sa
       containers:
         - name: pricing-service
           image: popecruzdt/easytrade-pricingservice:a9edfaf
@@ -75,6 +76,8 @@ spec:
               memory: 100Mi
             limits:
               memory: 150Mi
+          securityContext:
+            allowPrivilegeEscalation: true
 ---
 apiVersion: v1
 kind: Service

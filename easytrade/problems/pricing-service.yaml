@@ -24,6 +24,7 @@ spec:
         persistence: ephemeral
         dt.owner: easytrade-devops
     spec:
+      serviceAccountName: easytrade-sa
       containers:
         - name: pricing-service
           image: popecruzdt/easytrade-pricingservice:jz115zu
@@ -75,17 +76,5 @@ spec:
               memory: 100Mi
             limits:
               memory: 150Mi
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: pricing-service
-  namespace: easytrade-ocp
-spec:
-  type: ClusterIP
-  selector:
-    app: pricing-service
-  ports:
-    - name: http
-      port: 8080
-      targetPort: 8080
+          securityContext:
+            allowPrivilegeEscalation: true

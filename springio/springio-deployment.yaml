@@ -23,6 +23,7 @@ spec:
         tier: java
       name: springboot
     spec:
+      serviceaccount: springio-sa
       containers:
       - env:
         - name: JAVA_OPTS
@@ -30,6 +31,8 @@ spec:
         image: springio/gs-spring-boot-docker
         imagePullPolicy: IfNotPresent
         name: springboot
+        securityContext:
+          runAsUser: 1000
         resources:
           requests:
             memory: "150Mi"

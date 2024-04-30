@@ -24,6 +24,7 @@ spec:
         persistence: ephemeral
         dt.owner: easytrade-devops
     spec:
+      serviceAccountName: easytrade-sa
       containers:
         - name: credit-card-order-service
           image: popecruzdt/easytrade-creditcardorderservice:jz115zu
@@ -71,17 +72,5 @@ spec:
             requests:
               cpu: 100m
               memory: 100Mi
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: credit-card-order-service
-  namespace: easytrade-ocp
-spec:
-  type: ClusterIP
-  selector:
-    app: credit-card-order-service
-  ports:
-    - name: http
-      port: 8080
-      targetPort: 8080
+          securityContext:
+            allowPrivilegeEscalation: true

@@ -1,0 +1,88 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: versioning
+  namespace: easytrade-ocp
+data:
+  BUILD_VERSION: a9edfaf
+  RELEASE_VERSION: demo-good-release
+  STAGE: prod
+  PRODUCT: easytrade
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: credit-card-order-service
+  namespace: easytrade-ocp
+  labels:
+    app: credit-card-order-service
+    dt.owner: easytrade-devops
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: credit-card-order-service
+  template:
+    metadata:
+      labels:
+        app: credit-card-order-service
+        persistence: ephemeral
+        dt.owner: easytrade-devops
+    spec:
+      serviceAccountName: easytrade-sa
+      containers:
+        - name: credit-card-order-service
+          image: popecruzdt/easytrade-creditcardorderservice:a9edfaf
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PROXY_PREFIX
+              value: "credit-card-order-service"
+            - name: THIRD_PARTY_SERVICE_HOSTANDPORT
+              value: "third-party-service:8080"
+            - name: WORK_DELAY
+              value: "300"
+            - name: WORK_RATE
+              value: "900"
+            - name: MSSQL_CONNECTIONSTRING
+              valueFrom:
+                configMapKeyRef:
+                  name: connection-strings
+                  key: JAVA_CONNECTION_STRING
+            - name: DT_RELEASE_PRODUCT
+              valueFrom:
+                configMapKeyRef:
+                  name: versioning
+                  key: PRODUCT
+            - name: DT_RELEASE_STAGE
+              valueFrom:
+                configMapKeyRef:
+                  name: versioning
+                  key: STAGE
+            - name: DT_RELEASE_BUILD_VERSION
+              valueFrom:
+                configMapKeyRef:
+                  name: versioning
+                  key: BUILD_VERSION
+            - name: DT_RELEASE_VERSION
+              valueFrom:
+                configMapKeyRef:
+                  name: versioning
+                  key: RELEASE_VERSION
+            - name: DT_CUSTOM_PROP
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['dt.owner']
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+          securityContext:
+            allowPrivilegeEscalation: true
